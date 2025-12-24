@@ -18,7 +18,7 @@ int main() {
     const int TIME_LIMIT_MS = 2000; 
 
     long long count = 0;
-    long long n = 30; 
+    long long n = 1000000; 
 
     while (true) {
         fib(n);
