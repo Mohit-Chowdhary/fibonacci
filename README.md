@@ -142,30 +142,3 @@ For best results:
 * use `-O2` or `-O3`
 * avoid debug builds
 * keep I/O outside the benchmark loop
-
----
-
-## What This Project Is (and Isn’t)
-
-**This is:**
-
-* a performance experiment
-* an algorithmic comparison
-* a study in implementation details
-
-**This is not:**
-
-* a big integer Fibonacci library
-* a numerical accuracy demo
-* a premature optimization contest
-
----
-
-## Takeaway
-
-The biggest performance wins rarely come from clever tricks —
-they come from **choosing the right algorithm and removing unnecessary work**.
-
-This repository demonstrates that principle end-to-end.
-
----
