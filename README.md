@@ -1,77 +1,144 @@
 # Fibonacci Performance Experiments (C++)
 
-This repository explores how different algorithmic approaches to computing
-Fibonacci numbers affect performance under a fixed time budget.
+This repository is a **performance-driven exploration** of Fibonacci computation in C++, focusing on how **algorithm choice and implementation details** affect real-world throughput.
 
-The goal is **not** to compute a single Fibonacci number fast, but to measure
-how much computational work can be completed within a given time limit.
+Rather than timing a single call, each implementation is benchmarked under a **fixed time budget** to measure how much useful work can be completed.
 
 ---
 
-## Motivation
+## Why Fibonacci?
 
-Many beginner implementations of Fibonacci look correct but perform extremely
-poorly. This project demonstrates, through direct benchmarking, how algorithm
-choice dominates performance.
+Fibonacci is deceptively simple:
 
----
+* the math is trivial
+* the implementations vary wildly
+* the performance gap spans **orders of magnitude**
 
-## Structure
+That makes it a perfect sandbox to study:
 
-Each chapter introduces a new approach:
-
-- `chapter1_naive_fibonacci.cpp`
-  - Recursive definition
-  - Exponential time complexity
-  - Demonstrates recomputation explosion
-
-- `chapter2_iterative_fibonacci.cpp`
-  - Iterative dynamic programming
-  - Linear time complexity
-  - Massive performance improvement
-
-Future chapters will explore:
-- Fast doubling (O(log n))
-- Big integer arithmetic
-- Threaded batch computation
-- CPU saturation and benchmarking
+* algorithmic complexity
+* recursion vs iteration
+* constant factors
+* CPU-level behavior
 
 ---
 
-## Benchmarking Methodology
+## Benchmark Philosophy
 
-Instead of measuring a single execution, each program:
+This project measures **throughput**, not latency.
 
-1. Runs Fibonacci computation in a loop
-2. Stops after a fixed time limit (e.g. 2 seconds)
-3. Counts how many executions completed
+Each program:
 
-This measures **throughput**, not just latency.
+1. Repeatedly computes `fib(n)`
+2. Runs for a fixed time window (e.g. 2000 ms)
+3. Counts how many computations finish
 
----
-
-## Example Result
-
-On the same machine, with the same time limit:
-
-- Naive recursion (`fib(30)`): ~500 executions
-- Iterative DP (`fib(30)`): ~42,000,000 executions
-
-This illustrates the dramatic effect of eliminating redundant computation.
+This avoids noisy microbenchmarks and highlights **steady-state performance**.
 
 ---
 
-## Key Takeaways
+## Implementations
 
-- Algorithmic complexity matters more than hardware
-- Recursion is not inherently slow, but careless recursion is
-- Benchmarking must avoid I/O and focus on controlled timing
-- Performance experiments should be reproducible
+### 1. Naive Recursive Fibonacci
+
+**Complexity:** O(φⁿ)
+
+* Direct mathematical definition
+* Massive recomputation
+* Included as a baseline and cautionary example
+
+---
+
+### 2. Iterative Dynamic Programming
+
+**Complexity:** O(n)
+
+* Linear-time loop
+* Eliminates recomputation
+* Huge improvement over naive recursion
+
+---
+
+### 3. Matrix Exponentiation
+
+**Complexity:** O(log n)
+
+Uses the identity:
+
+```
+|1 1|^n = |F(n+1) F(n)  |
+|1 0|     |F(n)   F(n-1)|
+```
+
+* General technique for linear recurrences
+* Iterative, branch-predictable
+* Strong baseline for logarithmic-time methods
+
+---
+
+### 4. Fast Doubling (Recursive)
+
+**Complexity:** O(log n)
+
+Uses the identities:
+
+```
+F(2k)   = F(k) * (2*F(k+1) − F(k))
+F(2k+1) = F(k+1)^2 + F(k)^2
+```
+
+* Fewer operations than matrix exponentiation
+* Elegant mathematically
+* Recursive structure introduces overhead
+
+---
+
+### 5. Fast Doubling (Iterative, Bitwise)
+
+**Complexity:** O(log n)
+
+This is the **final and fastest** version.
+
+* Removes recursion entirely
+* Iterates over bits of `n`
+* No stack usage, no function calls
+* Lower constant factors than matrix exponentiation
+
+This version consistently achieves the **highest throughput**.
+
+---
+
+## Sample Results (2 seconds)
+
+| Method                        | fib(30) executions |
+| ----------------------------- | ------------------ |
+| Matrix Exponentiation         | ~31 million        |
+| Fast Doubling (recursive)     | ~34 million        |
+| **Fast Doubling (iterative)** | **~53 million**    |
+
+*(Exact numbers depend on compiler and CPU)*
+
+---
+
+## Key Observations
+
+* Asymptotic complexity is necessary but **not sufficient**
+* Recursive elegance can lose to iterative structure
+* Constant factors and branch predictability matter
+* Theoretically optimal algorithms still need careful implementation
+* Fast doubling is Fibonacci-specific and beats general methods in practice
 
 ---
 
 ## Build & Run
 
 ```bash
-g++ -O2 chapter2_iterative_fibonacci.cpp
-./a.out
+g++ -O2 fast_doubling_iterative.cpp -o fib
+./fib
+```
+
+For best results:
+
+* use `-O2` or `-O3`
+* avoid debug builds
+* keep I/O outside the benchmark loop
