@@ -2,23 +2,24 @@
 using namespace std;
 using namespace chrono;
 
-// returns {F(n), F(n+1)}
-pair<long long, long long> fib_pair(long long n) {
-    if (n == 0) return {0, 1};
-
-    auto [a, b] = fib_pair(n >> 1); // a = F(k), b = F(k+1)
-
-    long long c = a * (2 * b - a); // F(2k)
-    long long d = a * a + b * b;   // F(2k+1)
-
-    if (n & 1)
-        return {d, c + d};
-    else
-        return {c, d};
-}
-
 long long fib(long long n) {
-    return fib_pair(n).first;
+    long long a = 0; // F(0)
+    long long b = 1; // F(1)
+
+    // iterate from highest bit to lowest bit
+    for (int i = 63 - __builtin_clzll(n); i >= 0; --i) {
+        long long d = a * (2 * b - a); // F(2k)
+        long long e = a * a + b * b;   // F(2k+1)
+
+        if ((n >> i) & 1) {
+            a = e;
+            b = d + e;
+        } else {
+            a = d;
+            b = e;
+        }
+    }
+    return a;
 }
 
 int main() {
@@ -26,7 +27,7 @@ int main() {
     const int TIME_LIMIT_MS = 2000;
 
     long long count = 0;
-    long long n = 1000000;
+    long long n = 30;
 
     while (true) {
         fib(n);
